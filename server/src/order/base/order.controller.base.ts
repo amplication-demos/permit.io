@@ -19,8 +19,7 @@ import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
 import { OrderService } from "../order.service";
-import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
-import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { Public } from "../../decorators/public.decorator";
 import { OrderCreateInput } from "./OrderCreateInput";
 import { OrderWhereInput } from "./OrderWhereInput";
 import { OrderWhereUniqueInput } from "./OrderWhereUniqueInput";
@@ -35,12 +34,7 @@ export class OrderControllerBase {
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Order",
-    action: "create",
-    possession: "any",
-  })
+  @Public()
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Order })
   @swagger.ApiForbiddenResponse({ type: errors.ForbiddenException })
@@ -86,12 +80,7 @@ export class OrderControllerBase {
     });
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Order",
-    action: "read",
-    possession: "any",
-  })
+  @Public()
   @common.Get()
   @swagger.ApiOkResponse({ type: [Order] })
   @swagger.ApiForbiddenResponse()
@@ -125,12 +114,7 @@ export class OrderControllerBase {
     });
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Order",
-    action: "read",
-    possession: "own",
-  })
+  @Public()
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Order })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -171,12 +155,7 @@ export class OrderControllerBase {
     return result;
   }
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Order",
-    action: "update",
-    possession: "any",
-  })
+  @Public()
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Order })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -236,11 +215,7 @@ export class OrderControllerBase {
     }
   }
 
-  @nestAccessControl.UseRoles({
-    resource: "Order",
-    action: "delete",
-    possession: "any",
-  })
+  @Public()
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Order })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
