@@ -19,8 +19,7 @@ import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
 import { ProductService } from "../product.service";
-import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
-import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { Public } from "../../decorators/public.decorator";
 import { ProductCreateInput } from "./ProductCreateInput";
 import { ProductWhereInput } from "./ProductWhereInput";
 import { ProductWhereUniqueInput } from "./ProductWhereUniqueInput";
@@ -38,12 +37,7 @@ export class ProductControllerBase {
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Product",
-    action: "create",
-    possession: "any",
-  })
+  @Public()
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Product })
   @swagger.ApiForbiddenResponse({ type: errors.ForbiddenException })
@@ -61,12 +55,7 @@ export class ProductControllerBase {
     });
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Product",
-    action: "read",
-    possession: "any",
-  })
+  @Public()
   @common.Get()
   @swagger.ApiOkResponse({ type: [Product] })
   @swagger.ApiForbiddenResponse()
@@ -86,12 +75,7 @@ export class ProductControllerBase {
     });
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Product",
-    action: "read",
-    possession: "own",
-  })
+  @Public()
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Product })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -118,12 +102,7 @@ export class ProductControllerBase {
     return result;
   }
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Product",
-    action: "update",
-    possession: "any",
-  })
+  @Public()
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Product })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -155,11 +134,7 @@ export class ProductControllerBase {
     }
   }
 
-  @nestAccessControl.UseRoles({
-    resource: "Product",
-    action: "delete",
-    possession: "any",
-  })
+  @Public()
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Product })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -189,12 +164,7 @@ export class ProductControllerBase {
     }
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
-  @nestAccessControl.UseRoles({
-    resource: "Order",
-    action: "read",
-    possession: "any",
-  })
+  @Public()
   @common.Get("/:id/orders")
   @ApiNestedQuery(OrderFindManyArgs)
   async findManyOrders(
@@ -235,11 +205,7 @@ export class ProductControllerBase {
     return results;
   }
 
-  @nestAccessControl.UseRoles({
-    resource: "Product",
-    action: "update",
-    possession: "any",
-  })
+  @Public()
   @common.Post("/:id/orders")
   async connectOrders(
     @common.Param() params: ProductWhereUniqueInput,
@@ -257,11 +223,7 @@ export class ProductControllerBase {
     });
   }
 
-  @nestAccessControl.UseRoles({
-    resource: "Product",
-    action: "update",
-    possession: "any",
-  })
+  @Public()
   @common.Patch("/:id/orders")
   async updateOrders(
     @common.Param() params: ProductWhereUniqueInput,
@@ -279,11 +241,7 @@ export class ProductControllerBase {
     });
   }
 
-  @nestAccessControl.UseRoles({
-    resource: "Product",
-    action: "update",
-    possession: "any",
-  })
+  @Public()
   @common.Delete("/:id/orders")
   async disconnectOrders(
     @common.Param() params: ProductWhereUniqueInput,
