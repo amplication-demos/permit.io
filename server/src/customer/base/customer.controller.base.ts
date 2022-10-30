@@ -19,9 +19,7 @@ import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
 import { CustomerService } from "../customer.service";
-import { Public } from "../../decorators/public.decorator";
 import { CustomerCreateInput } from "./CustomerCreateInput";
-import { CustomerWhereInput } from "./CustomerWhereInput";
 import { CustomerWhereUniqueInput } from "./CustomerWhereUniqueInput";
 import { CustomerFindManyArgs } from "./CustomerFindManyArgs";
 import { CustomerUpdateInput } from "./CustomerUpdateInput";
@@ -29,6 +27,7 @@ import { Customer } from "./Customer";
 import { OrderFindManyArgs } from "../../order/base/OrderFindManyArgs";
 import { Order } from "../../order/base/Order";
 import { OrderWhereUniqueInput } from "../../order/base/OrderWhereUniqueInput";
+import { PermitIoGuard } from "../../permit-io/permit-io.guard";
 @swagger.ApiBearerAuth()
 @common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class CustomerControllerBase {
@@ -37,7 +36,7 @@ export class CustomerControllerBase {
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "create"))
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Customer })
   @swagger.ApiForbiddenResponse({ type: errors.ForbiddenException })
@@ -70,7 +69,7 @@ export class CustomerControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "read"))
   @common.Get()
   @swagger.ApiOkResponse({ type: [Customer] })
   @swagger.ApiForbiddenResponse()
@@ -97,7 +96,7 @@ export class CustomerControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "read"))
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Customer })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -131,7 +130,7 @@ export class CustomerControllerBase {
     return result;
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "update"))
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Customer })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -178,7 +177,7 @@ export class CustomerControllerBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "delete"))
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Customer })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -215,7 +214,7 @@ export class CustomerControllerBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "read"))
   @common.Get("/:id/orders")
   @ApiNestedQuery(OrderFindManyArgs)
   async findManyOrders(
@@ -256,7 +255,7 @@ export class CustomerControllerBase {
     return results;
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "update"))
   @common.Post("/:id/orders")
   async connectOrders(
     @common.Param() params: CustomerWhereUniqueInput,
@@ -274,7 +273,7 @@ export class CustomerControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "update"))
   @common.Patch("/:id/orders")
   async updateOrders(
     @common.Param() params: CustomerWhereUniqueInput,
@@ -292,7 +291,7 @@ export class CustomerControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "delete"))
   @common.Delete("/:id/orders")
   async disconnectOrders(
     @common.Param() params: CustomerWhereUniqueInput,

@@ -19,13 +19,12 @@ import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
 import { UserService } from "../user.service";
-import { Public } from "../../decorators/public.decorator";
 import { UserCreateInput } from "./UserCreateInput";
-import { UserWhereInput } from "./UserWhereInput";
 import { UserWhereUniqueInput } from "./UserWhereUniqueInput";
 import { UserFindManyArgs } from "./UserFindManyArgs";
 import { UserUpdateInput } from "./UserUpdateInput";
 import { User } from "./User";
+import { PermitIoGuard } from "../../permit-io/permit-io.guard";
 @swagger.ApiBearerAuth()
 @common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class UserControllerBase {
@@ -34,7 +33,7 @@ export class UserControllerBase {
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
-  @Public()
+  @common.UseGuards(PermitIoGuard('User', 'create'))
   @common.Post()
   @swagger.ApiCreatedResponse({ type: User })
   @swagger.ApiForbiddenResponse({ type: errors.ForbiddenException })
@@ -53,7 +52,7 @@ export class UserControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard('User', 'read'))
   @common.Get()
   @swagger.ApiOkResponse({ type: [User] })
   @swagger.ApiForbiddenResponse()
@@ -74,7 +73,7 @@ export class UserControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard('User', 'read'))
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: User })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -102,7 +101,7 @@ export class UserControllerBase {
     return result;
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard('User', 'update'))
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: User })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -135,7 +134,7 @@ export class UserControllerBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard('User', 'delete'))
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: User })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })

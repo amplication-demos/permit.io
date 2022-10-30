@@ -17,7 +17,6 @@ import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
 import * as gqlACGuard from "../../auth/gqlAC.guard";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
-import { Public } from "../../decorators/public.decorator";
 import { CreateProductArgs } from "./CreateProductArgs";
 import { UpdateProductArgs } from "./UpdateProductArgs";
 import { DeleteProductArgs } from "./DeleteProductArgs";
@@ -27,6 +26,7 @@ import { Product } from "./Product";
 import { OrderFindManyArgs } from "../../order/base/OrderFindManyArgs";
 import { Order } from "../../order/base/Order";
 import { ProductService } from "../product.service";
+import { PermitIoGuard } from "../../permit-io/permit-io.guard";
 
 @graphql.Resolver(() => Product)
 @common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
@@ -36,7 +36,6 @@ export class ProductResolverBase {
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
-  @Public()
   @graphql.Query(() => MetaQueryPayload)
   async _productsMeta(
     @graphql.Args() args: ProductFindManyArgs
@@ -51,7 +50,7 @@ export class ProductResolverBase {
     };
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Product", "read"))
   @graphql.Query(() => [Product])
   async products(
     @graphql.Args() args: ProductFindManyArgs
@@ -59,7 +58,7 @@ export class ProductResolverBase {
     return this.service.findMany(args);
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Product", "read"))
   @graphql.Query(() => Product, { nullable: true })
   async product(
     @graphql.Args() args: ProductFindUniqueArgs
@@ -71,7 +70,7 @@ export class ProductResolverBase {
     return result;
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Product", "create"))
   @graphql.Mutation(() => Product)
   async createProduct(
     @graphql.Args() args: CreateProductArgs
@@ -82,7 +81,7 @@ export class ProductResolverBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Product", "update"))
   @graphql.Mutation(() => Product)
   async updateProduct(
     @graphql.Args() args: UpdateProductArgs
@@ -102,7 +101,7 @@ export class ProductResolverBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Product", "delete"))
   @graphql.Mutation(() => Product)
   async deleteProduct(
     @graphql.Args() args: DeleteProductArgs
@@ -119,7 +118,7 @@ export class ProductResolverBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "read"))
   @graphql.ResolveField(() => [Order])
   async orders(
     @graphql.Parent() parent: Product,

@@ -13,11 +13,13 @@ import { PrismaService } from "nestjs-prisma";
 import { Prisma, User } from "@prisma/client";
 import { PasswordService } from "../../auth/password.service";
 import { transformStringFieldUpdateInput } from "../../prisma.util";
+import { PermitIoService } from "../../permit-io/permit-io.service";
 
 export class UserServiceBase {
   constructor(
     protected readonly prisma: PrismaService,
-    protected readonly passwordService: PasswordService
+    protected readonly passwordService: PasswordService,
+    protected readonly permitIoService: PermitIoService
   ) {}
 
   async count<T extends Prisma.UserFindManyArgs>(
@@ -39,14 +41,19 @@ export class UserServiceBase {
   async create<T extends Prisma.UserCreateArgs>(
     args: Prisma.SelectSubset<T, Prisma.UserCreateArgs>
   ): Promise<User> {
-    return this.prisma.user.create<T>({
-      ...args,
+    return this.prisma.user
+      .create<T>({
+        ...args,
 
-      data: {
-        ...args.data,
-        password: await this.passwordService.hash(args.data.password),
-      },
-    });
+        data: {
+          ...args.data,
+          password: await this.passwordService.hash(args.data.password),
+        },
+      })
+      .then((r) => {
+        this.permitIoService.userCreate(r.id);
+        return r;
+      });
   }
   async update<T extends Prisma.UserUpdateArgs>(
     args: Prisma.SelectSubset<T, Prisma.UserUpdateArgs>
@@ -69,6 +76,9 @@ export class UserServiceBase {
   async delete<T extends Prisma.UserDeleteArgs>(
     args: Prisma.SelectSubset<T, Prisma.UserDeleteArgs>
   ): Promise<User> {
-    return this.prisma.user.delete(args);
+    return this.prisma.user.delete(args).then((r) => {
+      this.permitIoService.userDelete(r.id);
+      return r;
+    });
   }
 }

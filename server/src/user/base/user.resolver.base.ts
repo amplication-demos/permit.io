@@ -17,7 +17,6 @@ import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
 import * as gqlACGuard from "../../auth/gqlAC.guard";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
-import { Public } from "../../decorators/public.decorator";
 import { CreateUserArgs } from "./CreateUserArgs";
 import { UpdateUserArgs } from "./UpdateUserArgs";
 import { DeleteUserArgs } from "./DeleteUserArgs";
@@ -25,6 +24,7 @@ import { UserFindManyArgs } from "./UserFindManyArgs";
 import { UserFindUniqueArgs } from "./UserFindUniqueArgs";
 import { User } from "./User";
 import { UserService } from "../user.service";
+import { PermitIoGuard } from "../../permit-io/permit-io.guard";
 
 @graphql.Resolver(() => User)
 @common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
@@ -34,7 +34,6 @@ export class UserResolverBase {
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
-  @Public()
   @graphql.Query(() => MetaQueryPayload)
   async _usersMeta(
     @graphql.Args() args: UserFindManyArgs
@@ -49,13 +48,13 @@ export class UserResolverBase {
     };
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard('User', 'read'))
   @graphql.Query(() => [User])
   async users(@graphql.Args() args: UserFindManyArgs): Promise<User[]> {
     return this.service.findMany(args);
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard('User', 'read'))
   @graphql.Query(() => User, { nullable: true })
   async user(@graphql.Args() args: UserFindUniqueArgs): Promise<User | null> {
     const result = await this.service.findOne(args);
@@ -65,7 +64,7 @@ export class UserResolverBase {
     return result;
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard('User', 'create'))
   @graphql.Mutation(() => User)
   async createUser(@graphql.Args() args: CreateUserArgs): Promise<User> {
     return await this.service.create({
@@ -74,7 +73,7 @@ export class UserResolverBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard('User', 'update'))
   @graphql.Mutation(() => User)
   async updateUser(@graphql.Args() args: UpdateUserArgs): Promise<User | null> {
     try {
@@ -92,7 +91,7 @@ export class UserResolverBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard('User', 'delete'))
   @graphql.Mutation(() => User)
   async deleteUser(@graphql.Args() args: DeleteUserArgs): Promise<User | null> {
     try {

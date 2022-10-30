@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
 import { Salt, parseSalt } from "../src/auth/password.service";
+import { PermitIoService } from "../src/permit-io/permit-io.service";
 import { hash } from "bcrypt";
 import { customSeed } from "./customSeed";
 
@@ -23,20 +24,22 @@ if (require.main === module) {
 
 async function seed(bcryptSalt: Salt) {
   console.info("Seeding database...");
-
+  const permit = new PermitIoService();
   const client = new PrismaClient();
   const data = {
     username: "admin",
     password: await hash("admin", bcryptSalt),
     roles: ["user"],
   };
-  await client.user.upsert({
+  const user = await client.user.upsert({
     where: { username: data.username },
     update: {},
     create: data,
   });
   void client.$disconnect();
 
+  await permit.userCreate(user.id);
+  
   console.info("Seeding database with custom seed...");
   customSeed();
 

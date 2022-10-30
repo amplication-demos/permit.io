@@ -17,7 +17,6 @@ import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
 import * as gqlACGuard from "../../auth/gqlAC.guard";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
-import { Public } from "../../decorators/public.decorator";
 import { CreateCustomerArgs } from "./CreateCustomerArgs";
 import { UpdateCustomerArgs } from "./UpdateCustomerArgs";
 import { DeleteCustomerArgs } from "./DeleteCustomerArgs";
@@ -28,6 +27,7 @@ import { OrderFindManyArgs } from "../../order/base/OrderFindManyArgs";
 import { Order } from "../../order/base/Order";
 import { Address } from "../../address/base/Address";
 import { CustomerService } from "../customer.service";
+import { PermitIoGuard } from "../../permit-io/permit-io.guard";
 
 @graphql.Resolver(() => Customer)
 @common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
@@ -37,7 +37,6 @@ export class CustomerResolverBase {
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
-  @Public()
   @graphql.Query(() => MetaQueryPayload)
   async _customersMeta(
     @graphql.Args() args: CustomerFindManyArgs
@@ -52,7 +51,7 @@ export class CustomerResolverBase {
     };
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "read"))
   @graphql.Query(() => [Customer])
   async customers(
     @graphql.Args() args: CustomerFindManyArgs
@@ -60,7 +59,7 @@ export class CustomerResolverBase {
     return this.service.findMany(args);
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "read"))
   @graphql.Query(() => Customer, { nullable: true })
   async customer(
     @graphql.Args() args: CustomerFindUniqueArgs
@@ -72,7 +71,7 @@ export class CustomerResolverBase {
     return result;
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "create"))
   @graphql.Mutation(() => Customer)
   async createCustomer(
     @graphql.Args() args: CreateCustomerArgs
@@ -91,7 +90,7 @@ export class CustomerResolverBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "update"))
   @graphql.Mutation(() => Customer)
   async updateCustomer(
     @graphql.Args() args: UpdateCustomerArgs
@@ -119,7 +118,7 @@ export class CustomerResolverBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "delete"))
   @graphql.Mutation(() => Customer)
   async deleteCustomer(
     @graphql.Args() args: DeleteCustomerArgs
@@ -136,7 +135,7 @@ export class CustomerResolverBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "read"))
   @graphql.ResolveField(() => [Order])
   async orders(
     @graphql.Parent() parent: Customer,
@@ -151,7 +150,7 @@ export class CustomerResolverBase {
     return results;
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Address", "read"))
   @graphql.ResolveField(() => Address, { nullable: true })
   async address(@graphql.Parent() parent: Customer): Promise<Address | null> {
     const result = await this.service.getAddress(parent.id);

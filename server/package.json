@@ -42,6 +42,7 @@
     "passport": "0.6.0",
     "passport-http": "0.3.0",
     "passport-jwt": "4.0.0",
+    "permitio": "^1.0.0-rc1",
     "reflect-metadata": "0.1.13",
     "swagger-ui-express": "4.3.0",
     "ts-node": "9.1.1"
@@ -68,6 +69,8 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "modulePathIgnorePatterns": ["<rootDir>/dist/"]
+    "modulePathIgnorePatterns": [
+      "<rootDir>/dist/"
+    ]
   }
 }

@@ -19,13 +19,12 @@ import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
 import { OrderService } from "../order.service";
-import { Public } from "../../decorators/public.decorator";
 import { OrderCreateInput } from "./OrderCreateInput";
-import { OrderWhereInput } from "./OrderWhereInput";
 import { OrderWhereUniqueInput } from "./OrderWhereUniqueInput";
 import { OrderFindManyArgs } from "./OrderFindManyArgs";
 import { OrderUpdateInput } from "./OrderUpdateInput";
 import { Order } from "./Order";
+import { PermitIoGuard } from "../../permit-io/permit-io.guard";
 @swagger.ApiBearerAuth()
 @common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class OrderControllerBase {
@@ -34,7 +33,7 @@ export class OrderControllerBase {
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "create"))
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Order })
   @swagger.ApiForbiddenResponse({ type: errors.ForbiddenException })
@@ -80,7 +79,7 @@ export class OrderControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "read"))
   @common.Get()
   @swagger.ApiOkResponse({ type: [Order] })
   @swagger.ApiForbiddenResponse()
@@ -114,7 +113,7 @@ export class OrderControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "read"))
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Order })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -155,7 +154,7 @@ export class OrderControllerBase {
     return result;
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "update"))
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Order })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -215,7 +214,7 @@ export class OrderControllerBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "delete"))
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Order })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })

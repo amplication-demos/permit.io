@@ -19,9 +19,7 @@ import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
 import { AddressService } from "../address.service";
-import { Public } from "../../decorators/public.decorator";
 import { AddressCreateInput } from "./AddressCreateInput";
-import { AddressWhereInput } from "./AddressWhereInput";
 import { AddressWhereUniqueInput } from "./AddressWhereUniqueInput";
 import { AddressFindManyArgs } from "./AddressFindManyArgs";
 import { AddressUpdateInput } from "./AddressUpdateInput";
@@ -29,6 +27,7 @@ import { Address } from "./Address";
 import { CustomerFindManyArgs } from "../../customer/base/CustomerFindManyArgs";
 import { Customer } from "../../customer/base/Customer";
 import { CustomerWhereUniqueInput } from "../../customer/base/CustomerWhereUniqueInput";
+import { PermitIoGuard } from "../../permit-io/permit-io.guard";
 @swagger.ApiBearerAuth()
 @common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class AddressControllerBase {
@@ -37,7 +36,7 @@ export class AddressControllerBase {
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Address", "create"))
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Address })
   @swagger.ApiForbiddenResponse({ type: errors.ForbiddenException })
@@ -57,7 +56,7 @@ export class AddressControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Address", "read"))
   @common.Get()
   @swagger.ApiOkResponse({ type: [Address] })
   @swagger.ApiForbiddenResponse()
@@ -79,7 +78,7 @@ export class AddressControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Address", "read"))
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Address })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -108,7 +107,7 @@ export class AddressControllerBase {
     return result;
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Address", "update"))
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Address })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -142,7 +141,7 @@ export class AddressControllerBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Address", "delete"))
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Address })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -174,7 +173,7 @@ export class AddressControllerBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "read"))
   @common.Get("/:id/customers")
   @ApiNestedQuery(CustomerFindManyArgs)
   async findManyCustomers(
@@ -208,7 +207,7 @@ export class AddressControllerBase {
     return results;
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "update"))
   @common.Post("/:id/customers")
   async connectCustomers(
     @common.Param() params: AddressWhereUniqueInput,
@@ -226,7 +225,7 @@ export class AddressControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "update"))
   @common.Patch("/:id/customers")
   async updateCustomers(
     @common.Param() params: AddressWhereUniqueInput,
@@ -244,7 +243,7 @@ export class AddressControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "delete"))
   @common.Delete("/:id/customers")
   async disconnectCustomers(
     @common.Param() params: AddressWhereUniqueInput,

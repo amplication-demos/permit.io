@@ -17,7 +17,6 @@ import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
 import * as gqlACGuard from "../../auth/gqlAC.guard";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
-import { Public } from "../../decorators/public.decorator";
 import { CreateAddressArgs } from "./CreateAddressArgs";
 import { UpdateAddressArgs } from "./UpdateAddressArgs";
 import { DeleteAddressArgs } from "./DeleteAddressArgs";
@@ -27,6 +26,7 @@ import { Address } from "./Address";
 import { CustomerFindManyArgs } from "../../customer/base/CustomerFindManyArgs";
 import { Customer } from "../../customer/base/Customer";
 import { AddressService } from "../address.service";
+import { PermitIoGuard } from "../../permit-io/permit-io.guard";
 
 @graphql.Resolver(() => Address)
 @common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
@@ -36,7 +36,6 @@ export class AddressResolverBase {
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
-  @Public()
   @graphql.Query(() => MetaQueryPayload)
   async _addressesMeta(
     @graphql.Args() args: AddressFindManyArgs
@@ -51,7 +50,7 @@ export class AddressResolverBase {
     };
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Address", "read"))
   @graphql.Query(() => [Address])
   async addresses(
     @graphql.Args() args: AddressFindManyArgs
@@ -59,7 +58,7 @@ export class AddressResolverBase {
     return this.service.findMany(args);
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Address", "read"))
   @graphql.Query(() => Address, { nullable: true })
   async address(
     @graphql.Args() args: AddressFindUniqueArgs
@@ -71,7 +70,7 @@ export class AddressResolverBase {
     return result;
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Address", "create"))
   @graphql.Mutation(() => Address)
   async createAddress(
     @graphql.Args() args: CreateAddressArgs
@@ -82,7 +81,7 @@ export class AddressResolverBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Address", "update"))
   @graphql.Mutation(() => Address)
   async updateAddress(
     @graphql.Args() args: UpdateAddressArgs
@@ -102,7 +101,7 @@ export class AddressResolverBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Address", "delete"))
   @graphql.Mutation(() => Address)
   async deleteAddress(
     @graphql.Args() args: DeleteAddressArgs
@@ -119,7 +118,7 @@ export class AddressResolverBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Customer", "read"))
   @graphql.ResolveField(() => [Customer])
   async customers(
     @graphql.Parent() parent: Address,

@@ -19,7 +19,6 @@ import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
 import { ProductService } from "../product.service";
-import { Public } from "../../decorators/public.decorator";
 import { ProductCreateInput } from "./ProductCreateInput";
 import { ProductWhereInput } from "./ProductWhereInput";
 import { ProductWhereUniqueInput } from "./ProductWhereUniqueInput";
@@ -29,6 +28,7 @@ import { Product } from "./Product";
 import { OrderFindManyArgs } from "../../order/base/OrderFindManyArgs";
 import { Order } from "../../order/base/Order";
 import { OrderWhereUniqueInput } from "../../order/base/OrderWhereUniqueInput";
+import { PermitIoGuard } from "../../permit-io/permit-io.guard";
 @swagger.ApiBearerAuth()
 @common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class ProductControllerBase {
@@ -37,7 +37,7 @@ export class ProductControllerBase {
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Product", "create"))
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Product })
   @swagger.ApiForbiddenResponse({ type: errors.ForbiddenException })
@@ -55,7 +55,7 @@ export class ProductControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Product", "read"))
   @common.Get()
   @swagger.ApiOkResponse({ type: [Product] })
   @swagger.ApiForbiddenResponse()
@@ -75,7 +75,7 @@ export class ProductControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Product", "read"))
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Product })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -102,7 +102,7 @@ export class ProductControllerBase {
     return result;
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Product", "update"))
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Product })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -134,7 +134,7 @@ export class ProductControllerBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Product", "delete"))
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Product })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
@@ -164,7 +164,7 @@ export class ProductControllerBase {
     }
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "read"))
   @common.Get("/:id/orders")
   @ApiNestedQuery(OrderFindManyArgs)
   async findManyOrders(
@@ -205,7 +205,7 @@ export class ProductControllerBase {
     return results;
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "update"))
   @common.Post("/:id/orders")
   async connectOrders(
     @common.Param() params: ProductWhereUniqueInput,
@@ -223,7 +223,7 @@ export class ProductControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "update"))
   @common.Patch("/:id/orders")
   async updateOrders(
     @common.Param() params: ProductWhereUniqueInput,
@@ -241,7 +241,7 @@ export class ProductControllerBase {
     });
   }
 
-  @Public()
+  @common.UseGuards(PermitIoGuard("Order", "delete"))
   @common.Delete("/:id/orders")
   async disconnectOrders(
     @common.Param() params: ProductWhereUniqueInput,
